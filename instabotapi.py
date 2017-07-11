@@ -1,17 +1,16 @@
 # including libraries
 import requests,urllib
 from textblob import TextBlob
-from textblob.sentiments import NaiveBayesAnalyzer
 from instabot import get_keywords
-from clarify import get_keywords_from_image
-# Access Token
+# Access Token to get the access for instagram exchange
 APP_ACCESS_TOKEN = '4125485297.91d5653.0a9d3a55c5bb425493773be71cef0ec3'
+#acces token for  paralleldots
 APP_ACCESS_TOKEN_PD = 'rnaQPDGNt7ZmD8wFa1e3qlDu9SQnEf52ZGdhAJXB8Q0'
 BASE_URL = 'https://api.instagram.com/v1/'
 BASE_URL_PD = 'https://apis.paralleldots.com/'
 
 
-# Function for fetching own details
+# Function for getting your own details
 def self_info():
     request_url = (BASE_URL + 'users/self/?access_token=%s') % (APP_ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
@@ -66,7 +65,7 @@ def get_user_info(insta_username):
         print 'Status code other than 200 received!'
 
 
-# Function to get own recent post
+# Function to get your own recent post
 def get_own_post():
     request_url = (BASE_URL + 'users/self/media/recent/?access_token=%s') % (APP_ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
@@ -106,7 +105,7 @@ def get_user_post(insta_username):
         print 'Status code other than 200 received!'
 
 
-# Function to get id of recent post by the user using username
+# Function to get id of recent post by the user using their username
 def get_post_id(insta_username):
     user_id = get_user_id(insta_username)
     if user_id == None:
@@ -128,7 +127,7 @@ def get_post_id(insta_username):
         exit()
 
 
-# Function to like a post by user
+# Function to make a like on a user's recent post
 def like_a_post(insta_username):
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/likes') % (media_id)
@@ -142,7 +141,7 @@ def like_a_post(insta_username):
         print 'Your like was unsuccessful. Try again!'
 
 
-# Function to comment on user's post
+# Function to make a comment on a user's recent post
 def post_a_comment(insta_username):
     media_id = get_post_id(insta_username)
     comment_text = raw_input("Your comment: ")
@@ -156,7 +155,7 @@ def post_a_comment(insta_username):
         print "Successfully added a new comment!"
     else:
         print "Unable to add comment. Try again!"
-
+# Function to post our promotional comment on the desired post
 def post_promotional_comment(insta_promotional_message, insta_username):
     media_id = get_post_id(insta_username)
     payload = {"access_token": APP_ACCESS_TOKEN, "text": insta_promotional_message}
@@ -172,6 +171,8 @@ def post_promotional_comment(insta_promotional_message, insta_username):
 
 
 # function to do marketing
+#this function will help us finding and analysing desired caption , tags and comments
+#and then comment on that post related to our marketing product
 def insta_marketing(insta_keyword,insta_promotional_message,insta_username):
     # Analyze comments
     media_id = get_post_id(insta_username)
@@ -195,7 +196,7 @@ def insta_marketing(insta_keyword,insta_promotional_message,insta_username):
     else:
         print 'Status code other than 200 received'
 
-    # Analyze tags and captions
+    # Analyze captions and tags
     request_url = (BASE_URL+'media/%s?access_token=%s') % (media_id, APP_ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
     media_data=requests.get(request_url).json()
@@ -256,38 +257,14 @@ def insta_marketing(insta_keyword,insta_promotional_message,insta_username):
             'Status code other than 200 received'
 
 
-        #Image processing using Clarifai
-        url_of_image1 =media_data['data']['images']['standard_resolution']['url']
-        print type(url_of_image1)
-        url_of_image=url_of_image1.encode('ascii','ignore')
-        print type(url_of_image)
-
-        image_keywords=get_keywords_from_image(url_of_image)
-        print image_keywords
-        print type(image_keywords)
-        arr_of_dict=image_keywords['outputs'][0]['data']['concepts']
-        print type(arr_of_dict)
-        print arr_of_dict
-
-        for i in range(0,len(arr_of_dict)):
-            keyword = arr_of_dict[i]['name']
-            print keyword
-            if (keyword == insta_keyword):
-                print arr_of_dict[i]['name']
-                post_promotional_comment(insta_promotional_message, insta_username)
-                break
-            else:
-                print 'Not matched'
-    else:
-        print 'media doesn\'t exist'
 
 # Function to start the bot and presenting a menu
 
 def start_bot():
     while True:
         print '\n'
-        print 'Hey! Welcome to instaBot!'
-        print 'Here are your menu options:'
+        print 'Hey! Welcome to instabotapi!'
+        print 'chooese any of the following:'
         print "a.Get your own details\n"
         print "b.Get details of a user by username\n"
         print "c.Get your own recent post\n"
